@@ -118,15 +118,13 @@ list_node_t* list_insert(list_t* list, void* data)
     {
         new_node->next = list->head;
         new_node->prev = NULL;
-
-        //if head exists
+        
         if(list->head != NULL)
         {
             list->head->prev = new_node;
         }
         list->head = new_node;
 
-        //if tail is NULL
         if(list->tail == NULL)
         {
             list->tail = new_node;

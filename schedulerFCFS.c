@@ -7,6 +7,7 @@
 // FCFS scheduler info
 typedef struct {
     /* IMPLEMENT THIS */
+    list_t* job_list;
 } scheduler_FCFS_t;
 
 // Creates and returns scheduler specific info
@@ -17,6 +18,7 @@ void* schedulerFCFSCreate()
         return NULL;
     }
     /* IMPLEMENT THIS */
+    info->job_list = list_create(NULL);
     return info;
 }
 
@@ -25,6 +27,7 @@ void schedulerFCFSDestroy(void* schedulerInfo)
 {
     scheduler_FCFS_t* info = (scheduler_FCFS_t*)schedulerInfo;
     /* IMPLEMENT THIS */
+    list_destroy(info->job_list);
     free(info);
 }
 
@@ -37,6 +40,13 @@ void schedulerFCFSScheduleJob(void* schedulerInfo, scheduler_t* scheduler, job_t
 {
     scheduler_FCFS_t* info = (scheduler_FCFS_t*)schedulerInfo;
     /* IMPLEMENT THIS */
+
+    list_insert(info->job_list, job);
+
+    if (list_count(info->job_list) == 1) {
+        schedulerScheduleNextCompletion(scheduler, currentTime + jobGetJobTime(job));
+    }
+    
 }
 
 // Called to complete a job in response to an earlier call to schedulerScheduleNextCompletion
@@ -48,5 +58,14 @@ job_t* schedulerFCFSCompleteJob(void* schedulerInfo, scheduler_t* scheduler, uin
 {
     scheduler_FCFS_t* info = (scheduler_FCFS_t*)schedulerInfo;
     /* IMPLEMENT THIS */
-    return NULL;
+    job_t* job = list_data(list_tail(info->job_list));
+    list_remove(info->job_list, list_tail(info->job_list));
+    
+    if (list_count(info->job_list) > 0) {
+        job_t* next_job = list_data(list_tail(info->job_list));
+        schedulerScheduleNextCompletion(scheduler, currentTime + jobGetJobTime(next_job));
+    }
+
+    return job;
+
 }
