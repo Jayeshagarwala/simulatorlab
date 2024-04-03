@@ -7,6 +7,8 @@
 // LCFS scheduler info
 typedef struct {
     /* IMPLEMENT THIS */
+    list_t* job_list;
+    job_t* scheduled_job;
 } scheduler_LCFS_t;
 
 // Creates and returns scheduler specific info
@@ -17,6 +19,7 @@ void* schedulerLCFSCreate()
         return NULL;
     }
     /* IMPLEMENT THIS */
+    info->job_list = list_create(NULL);
     return info;
 }
 
@@ -25,6 +28,7 @@ void schedulerLCFSDestroy(void* schedulerInfo)
 {
     scheduler_LCFS_t* info = (scheduler_LCFS_t*)schedulerInfo;
     /* IMPLEMENT THIS */
+    list_destroy(info->job_list);
     free(info);
 }
 
@@ -37,6 +41,11 @@ void schedulerLCFSScheduleJob(void* schedulerInfo, scheduler_t* scheduler, job_t
 {
     scheduler_LCFS_t* info = (scheduler_LCFS_t*)schedulerInfo;
     /* IMPLEMENT THIS */
+    list_insert(info->job_list, job);
+    if (list_count(info->job_list) == 1) {
+        info->scheduled_job = job;
+        schedulerScheduleNextCompletion(scheduler, currentTime + jobGetJobTime(job));
+    }
 }
 
 // Called to complete a job in response to an earlier call to schedulerScheduleNextCompletion
@@ -48,5 +57,18 @@ job_t* schedulerLCFSCompleteJob(void* schedulerInfo, scheduler_t* scheduler, uin
 {
     scheduler_LCFS_t* info = (scheduler_LCFS_t*)schedulerInfo;
     /* IMPLEMENT THIS */
-    return NULL;
+    job_t* job = info->scheduled_job;
+    list_remove(info->job_list, list_find(info->job_list, job));
+
+    if (list_count(info->job_list) > 0) {
+        job_t* next_job = list_data(list_head(info->job_list));
+        info->scheduled_job = next_job;
+        schedulerScheduleNextCompletion(scheduler, currentTime + jobGetJobTime(next_job));
+    }
+    else {
+        info->scheduled_job = NULL;
+    }
+    
+    return job;
+
 }
