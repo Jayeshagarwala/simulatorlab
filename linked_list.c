@@ -69,7 +69,7 @@ list_node_t* list_prev(list_node_t* node)
 list_node_t* list_end(list_t* list)
 {
     /* IMPLEMENT THIS */
-    return list->tail;
+    return NULL;
 }
 
 // Returns data in the given list node
