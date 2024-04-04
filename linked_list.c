@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "linked_list.h"
 
-//This code has been reused from concurrency assignment
+//This code has been reused from concurrency assignment and referenced from pointer lab assignement
 
 // Creates and returns a new list
 // If compare is NULL, list_insert just inserts at the head
