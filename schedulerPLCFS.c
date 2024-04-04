@@ -53,7 +53,6 @@ void schedulerPLCFSScheduleJob(void* schedulerInfo, scheduler_t* scheduler, job_
         }
     }
     
-    list_insert(info->job_list, job);
     info->current_job = job;
     info->current_job_start_time = currentTime;
     schedulerCancelNextCompletion(scheduler);
@@ -71,12 +70,12 @@ job_t* schedulerPLCFSCompleteJob(void* schedulerInfo, scheduler_t* scheduler, ui
     scheduler_PLCFS_t* info = (scheduler_PLCFS_t*)schedulerInfo;
     /* IMPLEMENT THIS */
     job_t* job = info->current_job;
-    list_remove(info->job_list, list_find(info->job_list, job));
-
+    
     if (list_count(info->job_list) > 0) {
         job_t* next_job = list_data(list_head(info->job_list));
         info->current_job = next_job;
         info->current_job_start_time = currentTime;
+        list_remove(info->job_list, list_find(info->job_list, next_job));
         schedulerScheduleNextCompletion(scheduler, currentTime + jobGetRemainingTime(next_job));
     }
     else {
