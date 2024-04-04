@@ -110,6 +110,7 @@ list_node_t* list_insert(list_t* list, void* data)
     if (new_node == NULL) {
         return NULL;
     }
+    
     new_node->data = data;
     new_node->next = NULL;
     new_node->prev = NULL;
@@ -129,7 +130,6 @@ list_node_t* list_insert(list_t* list, void* data)
         {
             list->tail = new_node;
         }
-
     }
     else
     {
@@ -139,12 +139,10 @@ list_node_t* list_insert(list_t* list, void* data)
         {
             current = current->next;
         }
-    
         if(current == NULL)
         {
             new_node->next = NULL;
             new_node->prev = list->tail;
-
             if(list->tail)
             {
                 list->tail->next = new_node;
@@ -155,7 +153,6 @@ list_node_t* list_insert(list_t* list, void* data)
         {
             new_node->next = current;
             new_node->prev = current->prev;
-            
             if(current->prev)
             {
                 current->prev->next = new_node;
@@ -165,7 +162,6 @@ list_node_t* list_insert(list_t* list, void* data)
                 list->head = new_node;
             }
             current->prev = new_node;
-
         }
     }
     list->count++;
