@@ -12,7 +12,7 @@ typedef struct {
     uint64_t current_job_start_time;
 } scheduler_SRPT_t;
 
-int compare_remaining_job_size(void* data1, void* data2) {
+int compare_remaining_job_size_SRPT(void* data1, void* data2) {
     job_t* job1 = (job_t*)data1;
     job_t* job2 = (job_t*)data2;
     if (jobGetRemainingTime(job1) < jobGetRemainingTime(job2)) {
@@ -39,7 +39,7 @@ void* schedulerSRPTCreate()
         return NULL;
     }
     /* IMPLEMENT THIS */
-    info->job_list = list_create(compare_remaining_job_size);
+    info->job_list = list_create(compare_remaining_job_size_SRPT);
     info->current_job = NULL;
     info->current_job_start_time = 0;
     return info;
