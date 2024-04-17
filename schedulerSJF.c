@@ -11,7 +11,7 @@ typedef struct {
     job_t* scheduled_job;
 } scheduler_SJF_t;
 
-int compare_job_size(void* data1, void* data2) {
+int compare_job_size_SJF(void* data1, void* data2) {
     job_t* job1 = (job_t*)data1;
     job_t* job2 = (job_t*)data2;
     if (jobGetJobTime(job1) < jobGetJobTime(job2)) {
@@ -38,7 +38,7 @@ void* schedulerSJFCreate()
         return NULL;
     }
     /* IMPLEMENT THIS */
-    info->job_list = list_create(compare_job_size);
+    info->job_list = list_create(compare_job_size_SJF);
     info->scheduled_job = NULL;
     return info;
 }
