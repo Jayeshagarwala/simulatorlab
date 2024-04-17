@@ -3,6 +3,7 @@
 #include "scheduler.h"
 #include "job.h"
 #include "linked_list.h"
+#include <stdio.h>
 
 // PS scheduler info
 typedef struct {
@@ -65,17 +66,24 @@ void schedulerPSScheduleJob(void* schedulerInfo, scheduler_t* scheduler, job_t* 
     /* IMPLEMENT THIS */
 
     if(list_count(info->job_list) != 0){
-        uint64_t elapsed_time = currentTime - info->current_job_start_time;
+        uint64_t elapsed_time = (currentTime - info->current_job_start_time) + info->unaccounted_time;
         uint64_t work_done_per_job = elapsed_time / list_count(info->job_list);
-        info->unaccounted_time += elapsed_time % list_count(info->job_list);
+        info->unaccounted_time = elapsed_time % list_count(info->job_list);
         for(list_node_t* node = list_head(info->job_list); node != list_end(info->job_list); node = list_next(node)){
-            job_t* job = list_data(node);
-            jobSetRemainingTime(job, jobGetRemainingTime(job) - work_done_per_job);
+            job_t* node_job = list_data(node);
+            jobSetRemainingTime(node_job, jobGetRemainingTime(node_job) - work_done_per_job);
         }
         list_insert(info->job_list, job);
         schedulerCancelNextCompletion(scheduler);
         job_t* smallest_RemainingTime_job = list_data(list_head(info->job_list));
-        schedulerScheduleNextCompletion(scheduler, currentTime + ((jobGetRemainingTime(smallest_RemainingTime_job) * list_count(info->job_list)) - info->unaccounted_time));
+        info->current_job_start_time = currentTime;
+
+        if(jobGetRemainingTime(smallest_RemainingTime_job) <= 0){
+            schedulerScheduleNextCompletion(scheduler, currentTime);
+        }
+        else{
+            schedulerScheduleNextCompletion(scheduler, currentTime + ((jobGetRemainingTime(smallest_RemainingTime_job) * list_count(info->job_list)) - info->unaccounted_time));
+        }
     }
     else{
         list_insert(info->job_list, job);
@@ -96,7 +104,10 @@ job_t* schedulerPSCompleteJob(void* schedulerInfo, scheduler_t* scheduler, uint6
     /* IMPLEMENT THIS */
     job_t* job = list_data(list_head(info->job_list));
     list_remove(info->job_list, list_head(info->job_list));
-    info->unaccounted_time = 0;
+    if (jobGetRemainingTime(job) > 0){
+        info->unaccounted_time = 0;
+    }
+
     for(list_node_t* node = list_head(info->job_list); node != list_end(info->job_list); node = list_next(node)){
         job_t* node_job = list_data(node);
         jobSetRemainingTime(node_job, jobGetRemainingTime(node_job) - jobGetRemainingTime(job));
@@ -104,7 +115,7 @@ job_t* schedulerPSCompleteJob(void* schedulerInfo, scheduler_t* scheduler, uint6
     if(list_count(info->job_list) != 0){
         job_t* smallest_RemainingTime_job = list_data(list_head(info->job_list));
         info->current_job_start_time = currentTime;
-        schedulerScheduleNextCompletion(scheduler, currentTime + (jobGetRemainingTime(smallest_RemainingTime_job) * list_count(info->job_list)));
+        schedulerScheduleNextCompletion(scheduler, currentTime + ((jobGetRemainingTime(smallest_RemainingTime_job) * list_count(info->job_list))-info->unaccounted_time));
     }
 
     return job;
