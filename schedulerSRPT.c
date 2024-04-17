@@ -66,9 +66,9 @@ void schedulerSRPTScheduleJob(void* schedulerInfo, scheduler_t* scheduler, job_t
 
     if(info->current_job != NULL){
         uint64_t remaining_time_current_job = jobGetRemainingTime(info->current_job)-(currentTime - info->current_job_start_time);
-        if (remaining_time_current_job > jobGetJobTime(job)){
-            list_insert(info->job_list, info->current_job);
+        if (remaining_time_current_job > jobGetRemainingTime(job)){
             jobSetRemainingTime(info->current_job, remaining_time_current_job);
+            list_insert(info->job_list, info->current_job);
             info->current_job = job;
             info->current_job_start_time = currentTime;
             schedulerCancelNextCompletion(scheduler);
